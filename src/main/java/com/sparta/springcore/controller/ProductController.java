@@ -21,13 +21,10 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final ApiUseTimeRepository apiUseTimeRepository;
 
     @Autowired
-    public ProductController(ProductService productService,
-                             ApiUseTimeRepository apiUseTimeRepository) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.apiUseTimeRepository = apiUseTimeRepository;
     }
 
     // 신규 상품 등록
@@ -37,7 +34,6 @@ public class ProductController {
         //측정 시작 시간
         long startTime = System.currentTimeMillis();
 
-        try {
             // 로그인 되어 있는 회원 테이블의 ID
             Long userId = userDetails.getUser().getId();
 
@@ -45,26 +41,6 @@ public class ProductController {
 
             // 응답 보내기
             return product;
-        } finally {
-            // 측정 종료 시간
-            long endTime = System.currentTimeMillis();
-
-            long runTime = endTime - startTime;
-            System.out.println("소요시간: " + runTime);
-
-            User user = userDetails.getUser();
-            ApiUseTime apiUseTime = apiUseTimeRepository.findByUser(user)
-                    .orElse(null);
-
-            if(apiUseTime == null){
-                apiUseTime = new ApiUseTime(user, runTime);
-            }else{
-                apiUseTime.addUseTime(runTime);
-            }
-
-            System.out.println("[API Use Time] Username: " + user.getUsername() + ", Total Time: " + apiUseTime.getTotalTime() + "ms");
-            apiUseTimeRepository.save(apiUseTime);
-        }
 
     }
 
